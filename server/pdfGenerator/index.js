@@ -1,4 +1,4 @@
-module.exports = () => {
+module.exports = ({html}) => {
     console.log(`<!DOCTYPE html>
     <html>
     <body>
@@ -8,13 +8,5 @@ module.exports = () => {
     
     </body>
     </html>`)
-    return `<!DOCTYPE html>
-    <html>
-    <body>
-    
-    <h1>My First Heading</h1>
-    <p>My first paragraph.</p>
-    
-    </body>
-    </html>`
+    return html
 }

@@ -16,21 +16,25 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // post generate pdf
-app.post('/create-pdf', (req, res) => {
-pdf.create(pdfTemplate(req.body), {}).toFile("result.pdf", (err)=> {
-    if(err){
-        res.send(Promise.reject(err))
+app.post("/create-pdf", (req, res) => {
+  const options = {
+    format: "Letter",
+    border: {
+      top: "1in", // default is 0, units: mm, cm, in, px
+      right: "0.8in",
+      bottom: "1in",
+      left: "0.8in",
+    },
+    displayHeaderFooter: true,
+    
+  };
+  pdf.create(pdfTemplate(req.body), options).toFile("result.pdf", (err) => {
+    if (err) {
+      res.send(Promise.reject(err));
     }
-    res.send(Promise.resolve())
-})
-})
-// server.post("/create-pdf", (req, res) => {
-//   pdf.create(pdfTemplate()).toBuffer(function (err, buffer) {
-//     if (err) return res.send(err);
-//     res.type("pdf");
-//     res.end(buffer, "binary");
-//   });
-// });
+    res.send(Promise.resolve());
+  });
+});
 
 // get - send generated pdf to client
 app.get("/fetch-pdf", (req, res) => {
