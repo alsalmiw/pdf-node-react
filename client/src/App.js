@@ -3,30 +3,35 @@ import React, { useRef } from "react";
 import axios from "axios";
 import { saveAs } from "file-saver";
 import GenerateHtml from "./GenerateHtml";
+const url = process.env.REACT_APP_DB_URL;
 
 function App() {
   const pdfRef = useRef();
 
-  const downloadPDF = () => {
-    console.log("pdfRef current", pdfRef.current);
-    axios
-      .post("http://localhost:4000/create-pdf", {
-        html: `<!DOCTYPE html>
+  const downloadPDF = async () => {
+    const body = {
+    html: `<!DOCTYPE html>
       <html>
       <head>
       </head>
       <body>${pdfRef.current.innerHTML}  </body>
       </html>`,
-      })
-      .then(() =>
-        axios.get("http://localhost:4000/fetch-pdf", { responseType: "blob" })
-      )
-      .then((res) => {
-        console.log(res);
-        const pdfBlob = new Blob([res.data], { type: "application/pdf" });
+    };
+    console.log("pdfRef current", pdfRef.current);
+    const response = await axios.post(`${url}create-pdf`, {
+      html: body.html,
+    });
+    if (response.status === 200) {
+      const pdfRes = await axios.get(`${url}fetch-pdf`, {
+        responseType: "blob",
+      });
+      if (pdfRes.status === 200) {
+        const pdfBlob = new Blob([pdfRes.data], { type: "application/pdf" });
 
         saveAs(pdfBlob, "newPdf.pdf");
-      });
+      }
+      console.log(pdfRes);
+    }
   };
 
   return (

@@ -1,44 +1,36 @@
 const express = require("express");
+const puppeteer = require("puppeteer");
 const bodyParser = require("body-parser");
-const pdf = require("html-pdf");
 const cors = require("cors");
-const pdfTemplate = require("./pdfGenerator");
 const app = express();
 const port = process.env.PORT || 4000;
 
 app.use(
   cors({
-    origin: "http://localhost:3004",
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"],
   })
 );
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// post generate pdf
-app.post("/create-pdf", (req, res) => {
-  const options = {
-    format: "Letter",
-    border: {
-      top: "1in", // default is 0, units: mm, cm, in, px
-      right: "0.8in",
-      bottom: "1in",
-      left: "0.8in",
-    },
-    displayHeaderFooter: true,
-    
-  };
-  pdf.create(pdfTemplate(req.body), options).toFile("result.pdf", (err) => {
-    if (err) {
-      res.send(Promise.reject(err));
-    }
-    res.send(Promise.resolve());
-  });
+app.post("/create-pdf", async (req, res) => {
+  const html = req.body.html;
+  console.log(html);
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.setContent(html, { waitUntil: "domcontentloaded" });
+  const pdf = await page.pdf({path: "document.pdf", format: "A4" });
+
+  res.set({ "Content-Type": "application/pdf", "Content-Length": pdf.length });
+  console.log("pdf", pdf);
+  res.send(pdf);
+
+  await browser.close();
 });
 
-// get - send generated pdf to client
 app.get("/fetch-pdf", (req, res) => {
-  res.sendFile(`${__dirname}/result.pdf`);
+  res.sendFile(`${__dirname}/document.pdf`);
 });
 
 app.listen(port, () => console.log(`listening on port ${port}`));
