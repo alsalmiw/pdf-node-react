@@ -74,6 +74,24 @@
         "fieldType": {
           "name": "Number"
         }
+      },
+      {
+        "id": 250,
+        "columnData": [
+          {
+            "accessorKey": "bbb",
+            "header": "$",
+            "isEditable": true
+          },
+          {
+            "accessorKey": "aaa",
+            "header": "$",
+            "isEditable": true
+          }
+        ],
+        "aggregation": [
+          { "accessorKey": "bbb", "aggregation": "sum", "value": 65 }
+        ]
       }
     ]
   },
